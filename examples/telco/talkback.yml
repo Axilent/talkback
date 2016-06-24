@@ -1,0 +1,22 @@
+%YAML 1.1
+---
+    Apps:
+        - App:
+            Name: 'Telco'
+            Intents:
+                - Intent:
+                     name: 'See Balance'
+                     code: 'examples.telco.intents.SeeBalance'
+                     phrases: 'examples/telco/intents/see_balance.yml'
+                - Intent:
+                     name: 'Pay Bill'
+                     code: 'examples.telco.intents.PayBill'
+                     phrases: 'examples/telco/intents/pay_bill.yml'
+                - Intent:
+                     name: 'Add Feature'
+                     code: 'examples.telco.intents.AddFeature'
+                     phrases: 'examples/telco/intents/add_feature.yml'
+                - Intent:
+                     name: 'Check Usage'
+                     code: 'examples.telco.intents.CheckUsage'
+                     phrases: 'examples/telco/intents/check_usage.yml'

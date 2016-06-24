@@ -1,0 +1,6 @@
+PyYAML==3.11
+nltk==3.2.1
+py==1.4.31
+pytest==2.9.2
+textblob==0.11.1
+wsgiref==0.1.2
