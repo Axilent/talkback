@@ -3,12 +3,21 @@ Main dispatcher for Talkback apps.
 """
 import os
 import yaml
-from talkback.core import App, Intent, IntentNotFound
+from talkback.core import App, Intent, IntentNotFound, AppNotFound
 
 class ConfigError(Exception):
     """ 
     Indicates a configuration problem with Talkback.
     """
+
+def get_app(app_name):
+    """ 
+    Gets the specified app.
+    """
+    try:
+        return app_map[app_name]
+    except KeyError:
+        raise AppNotFound("Can't find %s" % app_name)
 
 def get_intent(app_name,intent_name):
     """ 
@@ -31,7 +40,7 @@ def intent_for(app_name,text):
 
 app_map = {}
 
-def init(config_path):
+def init(config_path=None):
     """ 
     Initializes the Dispatcher. Relies on the TALKBACK_CONFIG envar.
     """
@@ -46,9 +55,10 @@ def init(config_path):
     
         for app_wrapper in data['Apps']:
             app_data = app_wrapper['App']
-            app = App(app_data['Name'])
+            app = App(app_data['Name'],app_data['Greeting'])
             for intent_wrapper in app_data['Intents']:
                 intent = Intent(intent_wrapper)
-                app_map[app.name] = app
+                app[intent.name] = intent
+            app_map[app.name] = app
     except Exception as e:
         raise ConfigError(e)

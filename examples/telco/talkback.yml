@@ -3,6 +3,7 @@
     Apps:
         - App:
             Name: 'Telco'
+            Greeting: 'Hi this is Telco. What can I do for you?'
             Intents:
                 - Intent:
                      name: 'See Balance'

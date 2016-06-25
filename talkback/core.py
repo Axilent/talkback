@@ -5,6 +5,7 @@ from UserDict import DictMixin
 from talkback.utils import gf
 from textblob.classifiers import NaiveBayesClassifier as Classifier # TODO is this the right choice?
 import yaml
+from types import TupleType, StringType
 
 class Session(object):
     """ 
@@ -13,11 +14,18 @@ class Session(object):
     def __init__(self,backend):
         self.backend = backend
     
+    @property
+    def id(self):
+        """ 
+        Gets the session id. Supplied by the backend.
+        """
+        return self.backend.get_id()
+    
     def speak(self,message,options=None,media=None):
         """ 
         Speaks to the user.
         """
-        backend.speak(message,options=options,media=media)
+        self.backend.speak(self,message,options=options,media=media)
     
     def interview_user(self,interview):
         """ 
@@ -26,13 +34,108 @@ class Session(object):
         backend.interview_user(interview)
         return interview
 
+class UserCancellation(Exception):
+    """ 
+    Indicates the user cancels an operation.
+    """
+
+def user_cancel(session):
+    """ 
+    A user cancels an operation.
+    """
+    raise UserCancellation()
+
+class Termination(Exception):
+    """ 
+    Terminates the session.
+    """
+
+def terminate(session):
+    """ 
+    Causes the session to terminate.
+    """
+    raise Termination()
+
 class Interview(object):
     """ 
     An interview questions a user and collects answers.
+    
+    The questions is an interable, and can container either strings
+    or 2-tuples of strings and a list of multiple choice answers.
     """
-    def __init__(self,questions):
+    def __init__(self,questions,introduction=None):
         self.questions = questions
         self.answers = {}
+        self.introduction = introduction
+    
+    def conduct_interview(self,session):
+        """ 
+        Conducts the interview with the user.
+        """
+        if self.introduction:
+            session.speak(self.introduction)
+        
+        for question in self.questions:
+            if type(question) is TupleType:
+                self.ask_multiple_choice_question(session,question)
+            elif type(question) is StringType:
+                self.ask_question(session,question)
+            else:
+                raise ValueError('Bad question:%s' % str(question))
+    
+    def set_answer(self,question,answer):
+        """ 
+        Sets an answer.
+        """
+        self.answers[question] = answer
+    
+    def ask_multiple_choice_question(self,session,question):
+        """ 
+        Asks a question with options.
+        """
+        question_text, possible_answers = question
+        option_list = [SetAnswerOption(possible_answer,question_text,self) for possible_answer in possible_answers]
+        options = Options(*option_list)
+        
+        session.speak(question_text,options=options)
+    
+    def ask_question(self,session,question):
+        """ 
+        Asks a simple question.
+        """
+        session.speak(question)
+        answer = session.listen()
+        self.set_answer(question,answer)
+
+class Option(object):
+    """ 
+    An option for a user.
+    """
+    def __init__(self,label,callback,priority=1):
+        self.label = label
+        self.callback = callback
+        self.priority = priority
+    
+    def __cmp__(self,other):
+        if self.priority == other.priority:
+            return cmp(self.label,other.label)
+        else:
+            return cmp(self.priority,other.priority)
+
+class SetAnswerOption(Option):
+    """ 
+    An option that specifically sets an answer for an interview.
+    """
+    def __init__(self,label,question,interview,priority=1):
+        super(SetAnswerOption,self).__init__(label,self.set_answer,priority=priority)
+        self.question = question
+        self.interview = interview
+    
+    def set_answer(self,session):
+        """ 
+        Sets the answer for the question, on the interview.
+        """
+        self.interview.set_answer(self.question,self.label)
 
 class Options(object):
     """ 
@@ -40,7 +143,11 @@ class Options(object):
     by the user.
     """
     def __init__(self,*options_list):
-        self.options = options_list
+        self.options = {}
+        for option in options_list:
+            self.options[option.label] = option
+        self.options_list = list(options_list)
+        self.options_list.sort(reverse=True)
 
 class Intent(object):
     """ 
@@ -49,7 +156,7 @@ class Intent(object):
     """
     def __init__(self,config_data):
         self.name = config_data['Intent']['name']
-        self.helper = gf(config_data['Intent']['code'])
+        self.helper = gf(config_data['Intent']['code'])()
         self.phrases = config_data['Intent']['phrases']
     
     def invoke(self,session):
@@ -64,12 +171,18 @@ class IntentNotFound(Exception):
     An error indicating a specified intent was not found.
     """
 
+class AppNotFound(Exception):
+    """ 
+    An error indicating a specified app was not found.
+    """
+
 class App(DictMixin):
     """ 
     Aggregation of intents.
     """
-    def __init__(self,name):
+    def __init__(self,name,greeting):
         self.name = name
+        self.greeting = greeting
         self.intents = {}
         self.classifier = None
     

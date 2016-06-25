@@ -1,6 +1,7 @@
 %YAML 1.1
 ---
     Phrases:
+        - "Usage"
         - "Check usage"
         - "How many minutes do I have left?"
         - "How many minutes have I used"

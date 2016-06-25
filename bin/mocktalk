@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import argparse
+from talkback import dispatcher
+from talkback.backends import mock
+from talkback import Session, AppNotFound
+
+def _build_args():
+    """ 
+    Builds the arg parser
+    """
+    parser = argparse.ArgumentParser(description='Drives the mock backend for Talkback.')
+    parser.add_argument('app',help='The name of the Talkback app to invoke.') # name of talkback app to invoke
+    parser.add_argument('--intent',dest='intent',required=False,help='A specific intent to invoke. If not specified, will match intents through text classification.')
+    return parser.parse_args()
+
+def invoke():
+    """ 
+    Invokes the command.
+    """
+    args = _build_args()
+    mock_session = mock.MockSession()
+    session = Session(mock_session)
+    intent = None
+        
+    dispatcher.init()
+    
+    app = dispatcher.get_app(args.app)
+    
+    print 'Mocktalk >>>>>>>>>>>>>'
+    print 'Connected to',app.name
+    print '----------------------'
+    
+    if args.intent:
+        try:
+            intent = app[args.intent]
+        except KeyError:
+            print 'Sorry.',app.name,' doesn\'t understand that.'
+            return
+    else:
+        user_input = raw_input('%s: ' % app.greeting)
+        intent = app.intent_for(user_input)
+    
+    intent.invoke(session)
+
+if __name__ == '__main__':
+    invoke()
+
+    
