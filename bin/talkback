@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import click
+from talkback.backends.messenger import commands as messenger_commands
+
+@click.group()
+def cli():
+    """ 
+    Main command interface. TODO help.
+    """
+
+
+messenger_help = """
+Runs Facebook Messenger commands.
+
+Takes one argument: service. This indicates which Messenger callback
+service to run.  Must be either 'webhook' or 'verifier'.
+
+'webhook' is the main callback hook for Messenger.  This service
+accepts requests from Facebook, representing messages from the
+Messenger service.
+
+'verifier' is only used for the Facebook app to verify the callback
+url. Once it has verified the URL the verifier is no longer needed.
+
+"""
+
+@cli.command(help=messenger_help)
+@click.argument('service')
+def messenger(service):
+    """ 
+    Runs Facebook Messenger servers.
+    """
+    if service == 'webhook':
+        click.echo('Running Messenger webhook...')
+        messenger_commands.run_webhook()
+    elif service == 'verifier':
+        click.echo('Running Messenger verifier callback...')
+        messenger_commands.run_verifier()
+    elif service == 'refresh':
+        click.echo('Sending POST to Facebook to refresh subscription...')
+        status_code, msg = messenger_commands.run_refresh_subscription()
+        click.echo('%d: %s' % (status_code,msg))
+    else:
+        click.echo('Must specify Messenger service: webhook or verifier.')
+
+if __name__ == '__main__':
+    cli()
+

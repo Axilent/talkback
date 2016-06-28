@@ -1,9 +1,9 @@
 """ 
 Intents for Telco
 """
-from talkback import Options, Option, user_cancel, terminate, Interview
+from talkback import Options, Option, user_cancel, terminate, Interview, IntentHelper
 
-class SeeBalance(object):
+class SeeBalance(IntentHelper):
     """ 
     See the account balance.
     """
@@ -13,28 +13,34 @@ class SeeBalance(object):
         """
         session.speak('Your balance is $89.54.')
 
-class PayBill(object):
+class PayBill(IntentHelper):
     """ 
     Pay the bill.
     """
+    def options(self):
+        """ 
+        Gets options associated with this intent.
+        """
+        return {'Pay Bill Now':Option('Pay Bill Now',self.pay_bill,2),
+                'Cancel':Option('Cancel',user_cancel,1)}
+    
     def invoke(self,session):
         """ 
         Invoker for pay bill.
         """
-        options = Options(Option('Pay Bill Now',self.pay_bill,2),
-                          Option('Cancel',user_cancel,1))
+        option_list = self.options().values()
+        options = Options('Would you like to pay your bill now?',*option_list)
         session.speak('Your balance is $89.54. You can pay your bill with your credit card on file, ending with 3465.',options=options)
-        terminate(session)
     
     def pay_bill(self,session):
         """ 
         Pays the bill.
         """
+        print 'in pay bill function'
         # In reality, business logic to pay the bill goes here
         session.speak('Your bill has been paid!  Thank you!')
-        terminate(session)
 
-class AddFeature(object):
+class AddFeature(IntentHelper):
     """ 
     Add a feature.
     """
@@ -46,9 +52,8 @@ class AddFeature(object):
         interview = Interview(questions,'You can add a number of different features to your account, depending on your needs.')
         interview.conduct_interview(session)
         session.speak('OK.  You added %s to your account. Thanks!' % interview.answers['What would you like to add to your account?'])
-        terminate(session)
 
-class CheckUsage(object):
+class CheckUsage(IntentHelper):
     """ 
     Check phone usage.
     """
@@ -56,6 +61,5 @@ class CheckUsage(object):
         """ 
         Invoker for Check Usage.
         """
-        session.speak('You have used 123 minutes this billing period.')
-        terminate(session)
+        session.speak('You have used 123 minutes this billing period, out of a total of 400 minutes.')
 

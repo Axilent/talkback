@@ -6,6 +6,7 @@ from talkback.utils import gf
 from textblob.classifiers import NaiveBayesClassifier as Classifier # TODO is this the right choice?
 import yaml
 from types import TupleType, StringType
+from threading import local as threadlocal
 
 class Session(object):
     """ 
@@ -34,17 +35,6 @@ class Session(object):
         backend.interview_user(interview)
         return interview
 
-class UserCancellation(Exception):
-    """ 
-    Indicates the user cancels an operation.
-    """
-
-def user_cancel(session):
-    """ 
-    A user cancels an operation.
-    """
-    raise UserCancellation()
-
 class Termination(Exception):
     """ 
     Terminates the session.
@@ -55,6 +45,17 @@ def terminate(session):
     Causes the session to terminate.
     """
     raise Termination()
+
+class UserCancellation(Termination):
+    """ 
+    Indicates the user cancels an operation.
+    """
+
+def user_cancel(session):
+    """ 
+    A user cancels an operation.
+    """
+    raise UserCancellation()
 
 class Interview(object):
     """ 
@@ -142,12 +143,29 @@ class Options(object):
     Options are represented as a multiple choice decision to be made
     by the user.
     """
-    def __init__(self,*options_list):
+    def __init__(self,call_to_action,*options_list):
+        self.call_to_action = call_to_action
         self.options = {}
         for option in options_list:
             self.options[option.label] = option
         self.options_list = list(options_list)
         self.options_list.sort(reverse=True)
+
+class IntentHelper(object):
+    """ 
+    Convenience superclass for intent helpers.
+    """
+    def options(self):
+        """ 
+        Returns empty dictionary. Subclasses override.
+        """
+        return {}
+    
+    def invoke(self,session):
+        """ 
+        Subclasses override.
+        """
+        raise NotImplemented()
 
 class Intent(object):
     """ 
@@ -165,6 +183,33 @@ class Intent(object):
         user session.
         """
         self.helper.invoke(session)
+    
+    def options(self):
+        """ 
+        Gets options associated with the intent.
+        """
+        return self.helper.options()
+
+_local_intent = threadlocal()
+
+class intention(object):
+    """ 
+    Context manager for setting an intent in the threadlocal.
+    """
+    def __init__(self,intent):
+        self.intent = intent
+    
+    def __enter__(self):
+        _local_intent.intent = self.intent
+    
+    def __exit__(self,*args):
+        _local_intent.intent = None
+
+def get_intention():
+    """ 
+    Gets the intention set in the thread local.
+    """
+    return _local_intent.intent
 
 class IntentNotFound(Exception):
     """ 
