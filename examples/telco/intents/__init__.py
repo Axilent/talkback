@@ -28,6 +28,8 @@ class PayBill(IntentHelper):
         """ 
         Invoker for pay bill.
         """
+        media_file = file('examples/telco/resources/cave.png','rb')
+        session.speak('Hi!',media=media_file)
         option_list = self.options().values()
         options = Options('Would you like to pay your bill now?',*option_list)
         session.speak('Your balance is $89.54. You can pay your bill with your credit card on file, ending with 3465.',options=options)

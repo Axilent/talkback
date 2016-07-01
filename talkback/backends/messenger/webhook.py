@@ -1,10 +1,11 @@
 """ 
 Webhook for Facebook Messenger.
 """
-from flask import Flask, request
+from flask import Flask, request, send_file
 import os
 import requests
 from talkback import dispatcher, Session, Termination, get_intention, intention, UserCancellation, BackendException
+from talkback import media as media_storage
 import logging
 
 app = Flask('messenger_webhook')
@@ -13,6 +14,8 @@ ACCESS_TOKEN = os.environ.get('MESSENGER_ACCESS_TOKEN','')
 FB_GRAPH_ENDPOINT = 'https://graph.facebook.com/v2.6/me/messages?access_token='+ACCESS_TOKEN
 
 MESSENGER_DEBUG = True if os.environ.get('MESSENGER_DEBUG',None) else False
+
+MEDIA_HOST = os.environ.get('MESSENGER_MEDIA_HOST','')
 
 log = logging.getLogger('talkback')
 
@@ -49,13 +52,19 @@ def reply(user_id,msg,options=None,media=None):
             'message':{'attachment':attachment}
         }
     elif media:
+        if not MEDIA_HOST:
+            raise BackendException('Must set MESSENGER_MEDIA_HOST to use media files.')
+        
+        filename = media_storage.set_file(media)
+        media_url = '%s/media/%s' % (MEDIA_HOST,filename)
+            
         attachment = {
             'type':'image',
-            'payload':{'url':'TODO'}
+            'payload':{'url':media_url}
         }
         data = {
             'recipient':{'id':user_id},
-            'message':{'text':msg,'attachment':attachment}
+            'message':{'attachment':attachment}
         }
     else:
         data = {
@@ -64,14 +73,13 @@ def reply(user_id,msg,options=None,media=None):
         }
         
     response = requests.post(FB_GRAPH_ENDPOINT,json=data)
-    #print response.content
+    print response.content
 
 @app.route('/',methods=['POST'])
 def handle_incoming_messages():
     """ 
     Handles FB verification.
     """
-    print 'incoming message from Facebook'
     log.debug('incoming message from Facebook')
     dispatcher.init()
     talkback_app = dispatcher.get_default_app()
@@ -79,7 +87,6 @@ def handle_incoming_messages():
     session = None
     try:
         data = request.json
-        print 'data is:',data
         log.debug('data is: %s' % unicode(data))
         sender = data['entry'][0]['messaging'][0]['sender']['id']
         if 'postback' in data['entry'][0]['messaging'][0]:
@@ -100,6 +107,14 @@ def handle_incoming_messages():
             session.speak('Bye!')
     
     return 'ok'
+
+@app.route('/media/<filename>')
+def media_file(filename):
+    """ 
+    Retrieves a media file.
+    """
+    outfile = media_storage.get_file(filename)
+    return send_file(outfile,mimetype='image/png')
 
 def process_postback(talkback_app,sender,postback):
     """ 

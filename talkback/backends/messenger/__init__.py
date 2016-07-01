@@ -20,7 +20,6 @@ class MessengerSession(object):
         """ 
         Speaks the message. Media is a file object.
         """
-        # TODO handle media files        
         reply(self.user_id,message,options=options,media=media)
 
     def interview(self,interview):
