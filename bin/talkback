@@ -6,7 +6,7 @@ from talkback.backends.messenger import commands as messenger_commands
 @click.group()
 def cli():
     """ 
-    Main command interface. TODO help.
+    Controls various Talkback services.
     """
 
 
