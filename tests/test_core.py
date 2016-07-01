@@ -14,7 +14,7 @@ def get_app():
     Sets up the app.
     """
     # Setup
-    app = App('TestClassificationApp')
+    app = App('TestClassificationApp','This is a test.')
     config_file = file('examples/telco/talkback.yml','r')
     config_data = yaml.safe_load(config_file)
     app_data = config_data['Apps'][0]['App'] # the telco app

@@ -57,6 +57,11 @@ def user_cancel(session):
     """
     raise UserCancellation()
 
+class BackendException(Exception):
+    """ 
+    Indicates a problem or limitation with a backend.
+    """
+
 class Interview(object):
     """ 
     An interview questions a user and collects answers.

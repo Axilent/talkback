@@ -4,7 +4,7 @@ Webhook for Facebook Messenger.
 from flask import Flask, request
 import os
 import requests
-from talkback import dispatcher, Session, Termination, get_intention, intention, UserCancellation
+from talkback import dispatcher, Session, Termination, get_intention, intention, UserCancellation, BackendException
 import logging
 
 app = Flask('messenger_webhook')
@@ -18,10 +18,13 @@ log = logging.getLogger('talkback')
 
 # Initialize the talkback app
 
-def reply(user_id,msg,options=None):
+def reply(user_id,msg,options=None,media=None):
     """ 
     Replies to the user.
     """
+    if options and media:
+        raise BackendException('Facebook Messenger API can only handle options (structured message) or media, but not both in the same message.')
+    
     data = None
     if options:
         button_list = []
@@ -44,6 +47,15 @@ def reply(user_id,msg,options=None):
         data = {
             'recipient':{'id':user_id},
             'message':{'attachment':attachment}
+        }
+    elif media:
+        attachment = {
+            'type':'image',
+            'payload':{'url':'TODO'}
+        }
+        data = {
+            'recipient':{'id':user_id},
+            'message':{'text':msg,'attachment':attachment}
         }
     else:
         data = {
