@@ -155,6 +155,9 @@ class Options(object):
             self.options[option.label] = option
         self.options_list = list(options_list)
         self.options_list.sort(reverse=True)
+    
+    def __len__(self):
+        return len(self.options_list)
 
 class IntentHelper(object):
     """ 
