@@ -92,6 +92,7 @@ def handle_incoming_messages():
     try:
         data = request.json
         log.debug('data is: %s' % unicode(data))
+        print 'messenger data is:',data
         sender = data['entry'][0]['messaging'][0]['sender']['id']
         if 'postback' in data['entry'][0]['messaging'][0]:
             postback = data['entry'][0]['messaging'][0]['postback']['payload']
