@@ -55,7 +55,6 @@ class AddFeature(IntentHelper):
             'What would you like to add to your account?',
             [
                 'Travel Minutes 100',
-                'Travel Minutes 500',
                 'Travel Data 5GB',
                 'Travel Data 20GB'
             ])

@@ -31,6 +31,8 @@ def reply(user_id,msg,options=None,media=None):
     
     data = None
     if options:
+        if len(options) > 3: # Damn you Facebook
+            raise BackendException('Facebook Messenger only accepts a maximum of three options.')
         button_list = []
         for option in options.options_list:
             button = {
