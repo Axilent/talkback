@@ -50,7 +50,16 @@ class AddFeature(IntentHelper):
         """ 
         Invoker for Add Feature.
         """
-        questions = [('What would you like to add to your account?',['Travel Minutes 100','Travel Minutes 500','Travel Data 5GB','Travel Data 20GB'])]
+        questions = [
+            (
+            'What would you like to add to your account?',
+            [
+                'Travel Minutes 100',
+                'Travel Minutes 500',
+                'Travel Data 5GB',
+                'Travel Data 20GB'
+            ])
+        ]
         interview = Interview(questions,'You can add a number of different features to your account, depending on your needs.')
         interview.conduct_interview(session)
         session.speak('OK.  You added %s to your account. Thanks!' % interview.answers['What would you like to add to your account?'])

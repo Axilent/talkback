@@ -101,7 +101,7 @@ class Interview(object):
         """
         question_text, possible_answers = question
         option_list = [SetAnswerOption(possible_answer,question_text,self) for possible_answer in possible_answers]
-        options = Options(*option_list)
+        options = Options('Please choose an option:',*option_list)
         
         session.speak(question_text,options=options)
     
