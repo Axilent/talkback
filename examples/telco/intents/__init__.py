@@ -1,7 +1,7 @@
 """ 
 Intents for Telco
 """
-from talkback.core import Options, Option, user_cancel, terminate, Interview, IntentHelper
+from talkback.core import Options, Option, user_cancel, terminate, Interview, IntentHelper, SetAnswerOption
 
 class SeeBalance(IntentHelper):
     """ 
@@ -48,32 +48,41 @@ class AddFeature(IntentHelper):
     """ 
     Add a feature.
     """
+    def options(self):
+        """ 
+        Gets options for Add Feature.
+        """
+        return {
+            'Travel Minutes 100':Option('Travel Minutes 100',self.travel_minutes_100,3),
+            'Travel Data 5GB':Option('Travel Data 5GB',self.travel_data_5gb,2),
+            'Travel Data 20GB':Option('Travel Data 20GB',self.travel_data_20gb,1)
+        }
+    
+    def travel_minutes_100(self,session):
+        """ 
+        Adds travel minutes 100 package.
+        """
+        session.speak('Adding Travel Minutes 100 to your plan.')
+    
+    def travel_data_5gb(self,session):
+        """ 
+        Adds 5GB package to plan.
+        """
+        session.speak('Adding Travel Data 5GB to your plan.')
+    
+    def travel_data_20gb(self,session):
+        """ 
+        Adds 20GB data package to plan.
+        """
+        session.speak('Adding Travel Data 20GB to your plan.')
+    
     def invoke(self,session):
         """ 
         Invoker for Add Feature.
         """
-        questions = [
-            (
-            account_question,
-            [
-                'Travel Minutes 100',
-                'Travel Data 5GB',
-                'Travel Data 20GB'
-            ])
-        ]
-        interview = Interview(self,questions,'You can add a number of different features to your account, depending on your needs.')
-        interview.conduct_interview(session)
-        session.speak('OK.  You added %s to your account. Thanks!' % interview.answers['What would you like to add to your account?'])
-    
-    def interview_done(self,interview,session):
-        """ 
-        Called upon interview completion.
-        """
-        try:
-            service = interview.answers[account_question]
-            session.speak('%s service added to your account.' % service)
-        except KeyError:
-            terminate(session)
+        option_list = self.options().values()
+        options = Options('What would you like to add to your plan?',*option_list)
+        session.speak('You can add a number of different features to your account, depending on your needs.',options=options)
 
 class CheckUsage(IntentHelper):
     """ 
