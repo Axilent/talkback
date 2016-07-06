@@ -48,7 +48,7 @@ A Session has several built-in methods of interaction that an Intent can use to 
 	        user_id = session.meta['user_id']
 	        total = get_bill_total(user_id)
 	        pay_options = PayOptions(user_id)
-	        session.speak("You're balance is %f. Do you want to pay your bill?" % total,options=pay_options)
+	        session.speak("Your balance is %f. Do you want to pay your bill?" % total,options=pay_options)
 
 
 
