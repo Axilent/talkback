@@ -72,7 +72,8 @@ def reply(user_id,msg,options=None,media=None):
             'recipient':{'id':user_id},
             'message':{'text':msg}
         }
-        
+    
+    log.debug('Outgoing data is:%s' % str(data))
     response = requests.post(FB_GRAPH_ENDPOINT,json=data)
     print response.content
 
