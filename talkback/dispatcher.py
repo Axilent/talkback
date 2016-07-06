@@ -5,6 +5,9 @@ import os
 import yaml
 from talkback.core import App, Intent, IntentNotFound, AppNotFound
 import threading
+import logging
+
+log = logging.getLogger('talkback')
 
 class ConfigError(Exception):
     """ 
@@ -76,4 +79,5 @@ def init(config_path=None):
                 app_map['__default__'] = app_map[data['Default']]
         
         except Exception as e:
+            log.exception('Problem with Dispatcher init.')
             raise ConfigError(e)
