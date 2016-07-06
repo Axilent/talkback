@@ -42,6 +42,8 @@ class PayBill(IntentHelper):
         # In reality, business logic to pay the bill goes here
         session.speak('Your bill has been paid!  Thank you!')
 
+account_question = 'What would you like to add to your account?'
+
 class AddFeature(IntentHelper):
     """ 
     Add a feature.
@@ -52,16 +54,26 @@ class AddFeature(IntentHelper):
         """
         questions = [
             (
-            'What would you like to add to your account?',
+            account_question,
             [
                 'Travel Minutes 100',
                 'Travel Data 5GB',
                 'Travel Data 20GB'
             ])
         ]
-        interview = Interview(questions,'You can add a number of different features to your account, depending on your needs.')
+        interview = Interview(self,questions,'You can add a number of different features to your account, depending on your needs.')
         interview.conduct_interview(session)
         session.speak('OK.  You added %s to your account. Thanks!' % interview.answers['What would you like to add to your account?'])
+    
+    def interview_done(self,interview,session):
+        """ 
+        Called upon interview completion.
+        """
+        try:
+            service = interview.answers[account_question]
+            session.speak('%s service added to your account.' % service)
+        except KeyError:
+            terminate(session)
 
 class CheckUsage(IntentHelper):
     """ 

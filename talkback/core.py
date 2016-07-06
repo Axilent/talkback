@@ -69,7 +69,8 @@ class Interview(object):
     The questions is an interable, and can container either strings
     or 2-tuples of strings and a list of multiple choice answers.
     """
-    def __init__(self,questions,introduction=None):
+    def __init__(self,intent,questions,introduction=None):
+        self.intent = intent
         self.questions = questions
         self.answers = {}
         self.introduction = introduction
@@ -89,11 +90,14 @@ class Interview(object):
             else:
                 raise ValueError('Bad question:%s' % str(question))
     
-    def set_answer(self,question,answer):
+    def set_answer(self,session,question,answer):
         """ 
         Sets an answer.
         """
         self.answers[question] = answer
+        if len(self.answers.values()) == len(self.questions):
+            # interview complete
+            self.intent.interview_done(self,session)
     
     def ask_multiple_choice_question(self,session,question):
         """ 
@@ -141,7 +145,7 @@ class SetAnswerOption(Option):
         """ 
         Sets the answer for the question, on the interview.
         """
-        self.interview.set_answer(self.question,self.label)
+        self.interview.set_answer(session,self.question,self.label)
 
 class Options(object):
     """ 
