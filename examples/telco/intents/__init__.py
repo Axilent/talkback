@@ -1,7 +1,7 @@
 """ 
 Intents for Telco
 """
-from talkback import Options, Option, user_cancel, terminate, Interview, IntentHelper
+from talkback.core import Options, Option, user_cancel, terminate, Interview, IntentHelper
 
 class SeeBalance(IntentHelper):
     """ 

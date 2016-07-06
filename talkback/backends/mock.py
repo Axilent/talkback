@@ -1,7 +1,7 @@
 """ 
 This is a mock backend for testing. It is controlled by the `mocktalk` command.
 """
-from talkback import Session, UserCancellation, Termination
+from talkback.core import Session, UserCancellation, Termination
 import sys
 
 class MockSession(object):

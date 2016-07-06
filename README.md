@@ -40,7 +40,7 @@ A Session has several built-in methods of interaction that an Intent can use to 
 
 ## Example Code
 
-	from talkback import Intent
+	from talkback.core import Intent
 	
 	class PayBill(Intent):
 	    """User wants to pay their phone bill."""

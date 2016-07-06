@@ -4,7 +4,7 @@ Webhook for Facebook Messenger.
 from flask import Flask, request, send_file
 import os
 import requests
-from talkback import dispatcher, Session, Termination, get_intention, intention, UserCancellation, BackendException
+from talkback.core import dispatcher, Session, Termination, get_intention, intention, UserCancellation, BackendException
 from talkback import media as media_storage
 import logging
 

@@ -3,7 +3,7 @@ Local file handling for media files.  Uses temp storage.
 """
 import os
 import os.path
-from talkback import BackendException
+from talkback.core import BackendException
 
 file_dir = os.environ.get('TALKBACK_LOCALFILE_DIR',None)
 

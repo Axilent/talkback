@@ -2,7 +2,7 @@
 Media backend that uses AWS S3 to store files.
 """
 import os
-from talkback import BackendException
+from talkback.core import BackendException
 import boto
 from StringIO import StringIO
 

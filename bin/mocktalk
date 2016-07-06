@@ -3,7 +3,7 @@
 import argparse
 from talkback import dispatcher
 from talkback.backends import mock
-from talkback import Session, AppNotFound
+from talkback.core import Session, AppNotFound
 
 def _build_args():
     """ 
